@@ -47,7 +47,7 @@ osage is written from public knowledge and its contributors' own work ([research
 - **Never bring in code or content from a commercial game**: nothing decompiled, recompiled, extracted, leaked or copied from a port built on those — code, assets, level data, SDK headers or names. A decompilation repository's own licence covers its contributors' rights only, never the game's.
 - **Learn techniques from talks, papers, documentation and your own experiments.** If you worked on the decompilation or a port of a game, do not write the equivalent part of osage from memory; say so and let someone else take the task.
 - **Third-party code** enters only with a licence compatible with the file's licence (`cargo deny` checks dependencies) and with its attribution kept.
-- **Content** (models, textures, sounds) enters only with a known free licence, listed in the asset manifest ([design/03 §5](design/03-rendering.md#5-content)).
+- **Content** (models, textures, sounds) enters only with a known open licence — any open licence, its terms honoured (D-122) — listed in the asset manifest with its licence, author and source ([design/03 §5](design/03-rendering.md#5-content)).
 - AI agents follow the same rules and do not fetch such sources while writing code ([AGENTS.md](AGENTS.md)). Some projects refuse AI-written contributions: respect their policy when contributing upstream.
 - In doubt, ask a maintainer before writing.
 

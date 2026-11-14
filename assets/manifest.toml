@@ -11,8 +11,9 @@
 # publisher asks; those with `made_by` are derived from others by that tool.
 # The game runs without any of them, in procedural form.
 #
-# Only content under a free licence with a known author and source enters
-# here (CC0 preferred; fonts under the SIL OFL, D-078). Nothing taken from
+# Only content under an open licence with a known author and source enters
+# here: any open licence since D-122 (CC0 still the simplest), each entry
+# naming its licence, and what that licence asks being done. Nothing taken from
 # commercial games (CONTRIBUTING, "Clean sources").
 
 # Poly Haven — https://polyhaven.com, CC0, fetched through its public API

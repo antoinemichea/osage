@@ -1015,3 +1015,11 @@ Date: 2026-11-14 · T3 lost the GPU (`DeviceLost`) on the reference laptop (Inte
 - **Found:** the `raytracing` feature brings in `bevy_solari`, which turns on `bevy_pbr/dfg_lut`: every PBR shader then reads a DFG lookup texture, at every tier, whether or not light is traced. On this laptop, the same commit at T3: lost 5 times of 5 with the feature, 2 of 2 with `bevy/dfg_lut` alone, 0 of 3 without either. With the feature it passes without the sky light (`--without sky-light`), and at T2 (a constant ambient light). The cloud's NVIDIA L4 runs T3 and T4 with the feature. A bisection that morning had found no guilty commit because its builds were made without the feature.
 - **Decision:** nothing in osage's rendering changes for it. The Windows build keeps the feature (T4 is opt-in, D-093): a machine it fails on is caught by D-090 — the sky light is the first technique left out of a failing T3 — and integrated GPUs start at T2 (D-075). On the reference laptop, T3 is benched from a build without the feature. One thing found on the way is kept: the clouds' shadows (D-108) no longer touch every ground material every frame — the wind is applied in the shader from the engine's clock, and a material is touched only when the weather changes; a marshal's flag is cut again only within 120 m of a camera.
 - **Open:** whether it is Mesa's or Bevy's to fix is not known; reporting it upstream needs the maintainer's word.
+
+## D-114 — The site's hero plays a film of the game
+
+Date: 2026-11-14 · the maintainer, of D-112's cross-fading pictures: "tu as mis une vidéo ?"
+
+- **Decision:** the site's stage plays ten seconds of a race — the start and the first bends — muted, looping, with a poster while it loads (2.4 MB, H.264, 1280×720, 30 frames a second). It is filmed by the bench itself: `--film FROM,TO[,EVERY]` saves a picture of every frame of a stretch, and since the bench steps time by a fixed amount the frames are those of a smooth film whatever the machine's speed; `ffmpeg` joins them. Where the reader asks for less motion, the poster stands in. Still no script.
+- **Why:** a game engine's first proof is the game moving.
+- **Consequences:** the film is a file in `site/video/`, made again by hand when the game's look changes much; its caption names the tier it was filmed at.

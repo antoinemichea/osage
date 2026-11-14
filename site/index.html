@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700&family=Saira:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="img/hero-start.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="img/hero-poster.webp" fetchpriority="high">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -91,18 +91,10 @@
         <div class="stage">
           <div class="stage-glow" aria-hidden="true"></div>
           <div class="stage-frame">
-            <figure class="slide">
-              <img src="img/hero-start.webp" alt="Karts leaving the grid, flames from their exhausts and tyre smoke behind them" fetchpriority="high">
-              <figcaption><b>Off the line</b><span>A perfect start: flames and tyre smoke · tier T4 · 29.9 ms a frame on an NVIDIA L4</span></figcaption>
-            </figure>
-            <figure class="slide">
-              <img src="img/hero-grid.webp" alt="Karts on the starting grid in front of a grandstand full of spectators" loading="lazy">
-              <figcaption><b>The grid, the grandstand</b><span>A crowd that follows the race · tier T4</span></figcaption>
-            </figure>
-            <figure class="slide">
-              <img src="img/hero-night.webp" alt="A kart racing at night in the rain, the floodlights mirrored in the wet asphalt" loading="lazy">
-              <figcaption><b>Night race in the rain</b><span>Ray-traced light · tier T4 · 32.8 ms a frame</span></figcaption>
-            </figure>
+            <video class="film" autoplay muted loop playsinline preload="metadata" poster="img/hero-poster.webp" aria-label="Ten seconds of an osage kart race: the start, the first bends">
+              <source src="video/race-t3.mp4" type="video/mp4">
+            </video>
+            <p class="stage-caption"><b>The first lap, as it is played</b><span>osage kart · tier T3 · filmed frame by frame from the game</span></p>
           </div>
         </div>
       </div>

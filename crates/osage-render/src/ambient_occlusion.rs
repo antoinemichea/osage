@@ -22,7 +22,16 @@ impl Plugin for AmbientOcclusionPlugin {
     }
 }
 
-fn camera(mut commands: Commands, tier: Res<Tier>, cameras: Query<Entity, Added<OsageCamera>>) {
+fn camera(
+    mut commands: Commands,
+    tier: Res<Tier>,
+    traced: Res<crate::TracedLight>,
+    cameras: Query<Entity, Added<OsageCamera>>,
+) {
+    // Traced light shades every corner by itself (D-121).
+    if traced.0 {
+        return;
+    }
     let quality_level = match *tier {
         Tier::T1 | Tier::T2 => return,
         Tier::T3 => ScreenSpaceAmbientOcclusionQualityLevel::High,

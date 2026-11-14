@@ -79,7 +79,8 @@ impl Plugin for BenchPlugin {
             Some((from, to, every)) => (from..=to).step_by(every.max(1) as usize).collect(),
             None => [1, 3, 5, 7].map(|eighths| self.frames * eighths / 8).to_vec(),
         };
-        app.insert_resource(crate::crowd::CrowdSeed(0))
+        app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin)
+            .insert_resource(crate::crowd::CrowdSeed(0))
             .insert_resource(TimeUpdateStrategy::ManualDuration(Duration::from_secs_f32(DT)))
             .insert_resource(Output(Some(self.resolution.into())))
             .insert_resource(Bench {
@@ -99,6 +100,7 @@ impl Plugin for BenchPlugin {
                 warm_up_worst: 0.0,
                 skip: 0,
                 saved: Vec::new(),
+                passes: Default::default(),
                 race: 0,
                 settled: 0,
             })
@@ -139,6 +141,9 @@ struct Bench {
     warm_up_worst: f32,
     skip: u32,
     saved: Vec<String>,
+    /// What each pass of the renderer cost the GPU, ms: (sum, frames,
+    /// worst), by the pass's name (D-121).
+    passes: std::collections::BTreeMap<String, (f64, u32, f64)>,
     /// The race so far, as a number (D-115): every kart's place and heading
     /// at the last step, in grid order. The same on every run, or the runs
     /// did not time the same frames.
@@ -270,6 +275,7 @@ fn measure(
     picture: Res<Picture>,
     composite: Option<Res<crate::preview::Composite>>,
     adapter: Res<RenderAdapterInfo>,
+    diagnostics: Option<Res<bevy::diagnostic::DiagnosticsStore>>,
     mut exit: MessageWriter<AppExit>,
 ) {
     let now = Instant::now();
@@ -283,6 +289,23 @@ fn measure(
         return;
     }
 
+    // Where the frame's time goes: the GPU's time in each pass, as the
+    // renderer's own spans give it (a frame or two late, which a mean does
+    // not mind).
+    if frame > WARM_UP
+        && let Some(diagnostics) = &diagnostics
+    {
+        for diagnostic in diagnostics.iter() {
+            let path = diagnostic.path().as_str();
+            let (Some(name), Some(ms)) =
+                (path.strip_prefix("render/").and_then(|p| p.strip_suffix("/elapsed_gpu")), diagnostic.value())
+            else {
+                continue;
+            };
+            let pass = bench.passes.entry(name.to_owned()).or_insert((0.0, 0, 0.0));
+            *pass = (pass.0 + ms, pass.1 + 1, pass.2.max(ms));
+        }
+    }
     match elapsed {
         Some(ms) if frame <= WARM_UP => bench.warm_up_worst = bench.warm_up_worst.max(ms),
         Some(_) if bench.skip > 0 => bench.skip -= 1,
@@ -345,6 +368,8 @@ fn report(bench: &Bench, rendered: UVec2, adapter: &RenderAdapterInfo) -> anyhow
         // Whether the asset manifest's content was there: it changes the picture.
         "assets": osage_content::root().is_some(),
         "frames": { "total": bench.total, "timed": sorted.len(), "warm_up": WARM_UP },
+        // The GPU's time in each pass, ms: mean and worst, the costliest first (D-121).
+        "passes_ms": passes(bench),
         // The race as a number: the same on every run that raced the same frames (D-115).
         "race": format!("{:016x}", bench.race),
         "frame_ms": {
@@ -391,6 +416,21 @@ fn report(bench: &Bench, rendered: UVec2, adapter: &RenderAdapterInfo) -> anyhow
 /// The commit this was run from, with `-dirty` if the tree has changes. A
 /// build made elsewhere than where it runs (a cloud bench machine has no
 /// checkout) carries it from its build: `OSAGE_COMMIT` when it was compiled.
+/// The passes' GPU times for the report: mean and worst, the costliest first.
+fn passes(bench: &Bench) -> serde_json::Value {
+    let mut passes: Vec<(&String, f64, f64)> = bench
+        .passes
+        .iter()
+        .map(|(name, (sum, frames, worst))| (name, sum / f64::from((*frames).max(1)), *worst))
+        .collect();
+    passes.sort_by(|a, b| b.1.total_cmp(&a.1));
+    let round = |ms: f64| (ms * 100.0).round() / 100.0;
+    passes
+        .into_iter()
+        .map(|(name, mean, worst)| serde_json::json!({ "pass": name, "mean": round(mean), "worst": round(worst) }))
+        .collect()
+}
+
 fn commit() -> String {
     if let Some(commit) = option_env!("OSAGE_COMMIT") {
         return commit.to_owned();

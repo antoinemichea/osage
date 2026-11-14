@@ -135,6 +135,14 @@ pub struct OsageCamera;
 #[derive(Component, Default)]
 pub struct Sun;
 
+/// Whether light is traced in this run (T4 on hardware with ray queries,
+/// D-093). The raster's own light and shade — the sun's shadow maps,
+/// contact shadows, screen-space ambient occlusion — are then left out:
+/// the traced light reads none of them, and they cost as much as at T3
+/// and more (D-121).
+#[derive(Resource, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct TracedLight(pub bool);
+
 /// A drawn mesh that traced light (T4, D-093) leaves out of its scene: a
 /// world marks what is not worth its rays — a blade of grass, all but one
 /// of a tree's levels of detail (D-119). It is drawn as ever, and takes
@@ -217,6 +225,7 @@ impl Plugin for OsageRenderPlugin {
         app.insert_resource(self.tier)
             .insert_resource(LeftOut(self.without.clone()))
             .init_resource::<Look>()
+            .init_resource::<TracedLight>()
             .insert_resource(sky_light::constant_ambient())
             .add_plugins((resolution::ResolutionPlugin, pace::PacePlugin, ground::GroundPlugin));
         for technique in Technique::ALL.into_iter().filter(|t| !self.without.contains(t)) {

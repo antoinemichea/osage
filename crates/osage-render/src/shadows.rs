@@ -41,9 +41,19 @@ fn shadow_map(mut commands: Commands, tier: Res<Tier>) {
     commands.insert_resource(DirectionalLightShadowMap { size: settings(*tier).2 });
 }
 
-fn sun(mut commands: Commands, tier: Res<Tier>, mut suns: Query<(Entity, &mut DirectionalLight), Added<Sun>>) {
+fn sun(
+    mut commands: Commands,
+    tier: Res<Tier>,
+    traced: Res<crate::TracedLight>,
+    mut suns: Query<(Entity, &mut DirectionalLight), Added<Sun>>,
+) {
     let (cascades, reach, _) = settings(*tier);
     for (entity, mut light) in &mut suns {
+        // Traced light casts its own shadows: no shadow maps to draw (D-121).
+        if traced.0 {
+            light.shadow_maps_enabled = false;
+            continue;
+        }
         light.shadow_maps_enabled = true;
         if *tier >= Tier::T3 {
             // Soft shadows (PCSS): the sun is half a degree wide, so a
@@ -62,8 +72,13 @@ fn sun(mut commands: Commands, tier: Res<Tier>, mut suns: Query<(Entity, &mut Di
     }
 }
 
-fn camera(mut commands: Commands, tier: Res<Tier>, cameras: Query<Entity, Added<OsageCamera>>) {
-    if *tier >= Tier::T3 {
+fn camera(
+    mut commands: Commands,
+    tier: Res<Tier>,
+    traced: Res<crate::TracedLight>,
+    cameras: Query<Entity, Added<OsageCamera>>,
+) {
+    if *tier >= Tier::T3 && !traced.0 {
         for camera in &cameras {
             // Bevy's temporal shadow filter hung the Iris Xe (Mesa) a few
             // hundred frames into a lap (2026-11-11): the default filter,

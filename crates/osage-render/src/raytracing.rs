@@ -24,7 +24,7 @@ use bevy::{
     solari::prelude::{RaytracingMesh3d, SolariLighting, SolariPlugins},
 };
 
-use crate::{Emitter, NotTraced, OsageCamera, Tier, ground::GroundMaterial};
+use crate::{Emitter, NotTraced, OsageCamera, Tier, TracedLight, ground::GroundMaterial};
 
 pub struct RayTracingPlugin;
 
@@ -38,6 +38,19 @@ impl Plugin for RayTracingPlugin {
             .init_resource::<Glows>()
             .add_systems(Update, (camera, doubles, stand_ins, emitters, glows, untrace))
             .add_systems(PostUpdate, hidden.after(bevy::camera::visibility::VisibilitySystems::VisibilityPropagate));
+    }
+
+    fn finish(&self, app: &mut App) {
+        if app.world().get_resource::<Tier>().is_none_or(|tier| *tier < Tier::T4) {
+            return;
+        }
+        // Solari lights the scene only where the hardware traces rays.
+        let traced = app.get_sub_app(bevy::render::RenderApp).is_some_and(|render| {
+            let features = render.world().resource::<bevy::render::renderer::RenderDevice>().features();
+            features.contains(SolariPlugins::required_wgpu_features())
+        });
+        app.insert_resource(TracedLight(traced));
+        info!(traced, "T4: light traced by the hardware");
     }
 }
 

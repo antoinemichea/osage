@@ -99,6 +99,7 @@ impl Plugin for BenchPlugin {
                 warm_up_worst: 0.0,
                 skip: 0,
                 saved: Vec::new(),
+                race: 0,
                 settled: 0,
             })
             .add_systems(Startup, line_up)
@@ -138,6 +139,10 @@ struct Bench {
     warm_up_worst: f32,
     skip: u32,
     saved: Vec<String>,
+    /// The race so far, as a number (D-115): every kart's place and heading
+    /// at the last step, in grid order. The same on every run, or the runs
+    /// did not time the same frames.
+    race: u64,
     /// Frames in a row with the circuit built and nothing left to load.
     settled: u32,
 }
@@ -180,6 +185,9 @@ fn keep_one_in_flight(device: Res<RenderDevice>, queue: Res<RenderQueue>, mut in
 /// A kart of the local race and the driver racing it.
 #[derive(Component)]
 struct Racer {
+    /// Its place on the grid: what orders the karts, whatever order the
+    /// engine keeps their entities in.
+    slot: usize,
     kart: Kart,
     temper: Temper,
     mind: Mind,
@@ -198,7 +206,7 @@ fn line_up(mut commands: Commands, bench: Res<Bench>) {
             Temper { pace: 0.8 + 0.02 * slot as f32, ..Temper::of(slot as u32) }
         };
         let kart = circuit.grid_slot(slot);
-        let racer = Racer { kart, temper, mind: Mind::new(slot as u32 + 1) };
+        let racer = Racer { slot, kart, temper, mind: Mind::new(slot as u32 + 1) };
         let mut racer = commands.spawn((
             racer,
             Pose {
@@ -221,22 +229,39 @@ fn line_up(mut commands: Commands, bench: Res<Bench>) {
 
 /// One physics step per frame: each driver races the field
 /// ([osage-kart-racecraft](osage_kart_racecraft)), then the karts collide.
-fn simulate(course: Res<Course>, mut racers: Query<(&mut Racer, &mut Pose)>) {
+fn simulate(course: Res<Course>, mut bench: ResMut<Bench>, mut racers: Query<(&mut Racer, &mut Pose)>) {
     let track = &course.0.track;
-    let karts: Vec<Kart> = racers.iter().map(|(racer, _)| racer.kart).collect();
+    // In grid order, whatever order the engine keeps the entities in: the
+    // order karts are stepped and knocked in is part of the race (D-115).
+    let mut grid: Vec<_> = racers.iter_mut().collect();
+    grid.sort_unstable_by_key(|(racer, _)| racer.slot);
+    let karts: Vec<Kart> = grid.iter().map(|(racer, _)| racer.kart).collect();
     let field = field(track, &karts);
-    for (me, (mut racer, _)) in racers.iter_mut().enumerate() {
-        let Racer { kart, temper, mind } = &mut *racer;
+    for (me, (racer, _)) in grid.iter_mut().enumerate() {
+        let Racer { kart, temper, mind, .. } = &mut **racer;
         let controls = drive(kart, me, &field, temper, mind, track);
         step(kart, controls, track);
     }
-    let mut pairs = racers.iter_combinations_mut();
-    while let Some([(mut a, _), (mut b, _)]) = pairs.fetch_next() {
-        bump(&mut a.kart, &mut b.kart);
+    for a in 0..grid.len() {
+        let (before, after) = grid.split_at_mut(a + 1);
+        for (b, _) in after {
+            bump(&mut before[a].0.kart, &mut b.kart);
+        }
     }
-    for (racer, mut pose) in &mut racers {
+    for (racer, pose) in &mut grid {
         pose.kart = racer.kart;
     }
+    drop(grid);
+    let mut places: Vec<(usize, [u32; 3])> = racers
+        .iter()
+        .map(|(racer, _)| (racer.slot, [racer.kart.x.to_bits(), racer.kart.z.to_bits(), racer.kart.heading.to_bits()]))
+        .collect();
+    places.sort_unstable();
+    // FNV-1a over the karts' bits.
+    bench.race = places
+        .iter()
+        .flat_map(|(_, bits)| bits.iter().flat_map(|b| b.to_le_bytes()))
+        .fold(0xcbf2_9ce4_8422_2325u64, |hash, byte| (hash ^ u64::from(byte)).wrapping_mul(0x0000_0100_0000_01b3));
 }
 
 fn measure(
@@ -320,6 +345,8 @@ fn report(bench: &Bench, rendered: UVec2, adapter: &RenderAdapterInfo) -> anyhow
         // Whether the asset manifest's content was there: it changes the picture.
         "assets": osage_content::root().is_some(),
         "frames": { "total": bench.total, "timed": sorted.len(), "warm_up": WARM_UP },
+        // The race as a number: the same on every run that raced the same frames (D-115).
+        "race": format!("{:016x}", bench.race),
         "frame_ms": {
             "mean": round(mean),
             "p50": round(percentile(50)),

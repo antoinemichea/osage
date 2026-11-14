@@ -581,3 +581,28 @@ fn mountains(centre: Vec2, dice: &mut Dice) -> Mesh {
         .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
         .with_inserted_indices(Indices::U32(indices))
 }
+
+/// What traced light (T4) does not trace of the scenery (D-119): the small
+/// things seen only close by — the grass carpet, tufts, flowers, ferns,
+/// stones — and, of a model with levels of detail, every level but the
+/// middle one: the rays then meet one tree, thinned, where they met three
+/// trees in one place, the densest among them.
+pub fn spare_the_rays(
+    mut commands: Commands,
+    placed: Query<
+        (Entity, &bevy::camera::visibility::VisibilityRange, Option<&osage_props::Level>),
+        Added<bevy::camera::visibility::VisibilityRange>,
+    >,
+) {
+    /// Seen no farther than this, m: too small to cast a shadow worth a ray.
+    const SMALL: f32 = 100.0;
+    for (entity, range, level) in &placed {
+        let spared = match level {
+            Some(level) if level.of >= 3 => level.index != 1,
+            _ => range.end_margin.end < SMALL,
+        };
+        if spared {
+            commands.entity(entity).insert(osage_render::NotTraced);
+        }
+    }
+}

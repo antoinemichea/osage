@@ -24,7 +24,7 @@ use bevy::{
     solari::prelude::{RaytracingMesh3d, SolariLighting, SolariPlugins},
 };
 
-use crate::{Emitter, OsageCamera, Tier, ground::GroundMaterial};
+use crate::{Emitter, NotTraced, OsageCamera, Tier, ground::GroundMaterial};
 
 pub struct RayTracingPlugin;
 
@@ -36,7 +36,7 @@ impl Plugin for RayTracingPlugin {
         app.add_plugins((SolariPlugins, crate::denoise::DenoisePlugin))
             .init_resource::<Doubles>()
             .init_resource::<Glows>()
-            .add_systems(Update, (camera, doubles, stand_ins, emitters, glows))
+            .add_systems(Update, (camera, doubles, stand_ins, emitters, glows, untrace))
             .add_systems(PostUpdate, hidden.after(bevy::camera::visibility::VisibilitySystems::VisibilityPropagate));
     }
 }
@@ -159,6 +159,7 @@ fn doubles(
             Without<Untraced>,
             Without<HiddenDouble>,
             Without<Emitter>,
+            Without<NotTraced>,
         ),
     >,
 ) {
@@ -178,6 +179,18 @@ fn doubles(
             }
             None => {}
         }
+    }
+}
+
+/// What a world marks as not worth the rays leaves the traced scene, if it
+/// was already in it.
+#[allow(clippy::type_complexity)]
+fn untrace(
+    mut commands: Commands,
+    marked: Query<Entity, (Added<NotTraced>, Or<(With<RaytracingMesh3d>, With<HiddenDouble>)>)>,
+) {
+    for entity in &marked {
+        commands.entity(entity).remove::<(RaytracingMesh3d, HiddenDouble)>();
     }
 }
 

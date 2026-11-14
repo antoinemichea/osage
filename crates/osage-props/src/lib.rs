@@ -108,6 +108,15 @@ pub(crate) fn finish(source: &GltfMaterial, tint: Option<Color>, opaque: bool) -
 #[derive(Resource, Default, Debug)]
 pub struct Waiting(pub usize);
 
+/// Which level of detail a placed mesh is: `index` of `of` (0 the whole
+/// mesh). A world may treat the levels differently — trace its light
+/// against one of them only, for example.
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Level {
+    pub index: u8,
+    pub of: u8,
+}
+
 /// A scatter whose places have been given the model.
 #[derive(Component)]
 struct Scattered;
@@ -415,10 +424,15 @@ fn scatter(
         scattered.with_children(|parent| {
             for (i, place) in scatter.places.iter().enumerate() {
                 for (mesh, material, inside) in &looks[i % looks.len()] {
-                    for (level, range) in &levels(level_ends[&mesh.id()]) {
+                    let levels = levels(level_ends[&mesh.id()]);
+                    for (level, range) in &levels {
                         let mesh = level_meshes[&(mesh.id(), *level)].clone();
-                        let mut child =
-                            parent.spawn((Mesh3d(mesh), MeshMaterial3d(material.clone()), *place * *inside));
+                        let mut child = parent.spawn((
+                            Mesh3d(mesh),
+                            MeshMaterial3d(material.clone()),
+                            *place * *inside,
+                            Level { index: *level as u8, of: levels.len() as u8 },
+                        ));
                         if let Some(range) = range {
                             child.insert(range.clone());
                         }

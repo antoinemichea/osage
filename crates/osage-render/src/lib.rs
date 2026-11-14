@@ -135,6 +135,13 @@ pub struct OsageCamera;
 #[derive(Component, Default)]
 pub struct Sun;
 
+/// A drawn mesh that traced light (T4, D-093) leaves out of its scene: a
+/// world marks what is not worth its rays — a blade of grass, all but one
+/// of a tree's levels of detail (D-119). It is drawn as ever, and takes
+/// the traced light; it casts no traced shadow and bounces none.
+#[derive(Component, Clone, Copy, Debug, Default)]
+pub struct NotTraced;
+
 /// A drawn mesh that is a lamp: traced light (T4, D-093) counts it as a
 /// light source of this luminance, cd/m², whatever its drawn material
 /// shows. A raster picture lights the scene with a punctual light beside

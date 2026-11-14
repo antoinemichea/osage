@@ -329,6 +329,7 @@ impl Plugin for ScenePlugin {
                     karts::park,
                     karts::animate,
                     track::drift_clouds,
+                    scenery::spare_the_rays,
                     effects::emit,
                     effects::gloom,
                     marks::lay,

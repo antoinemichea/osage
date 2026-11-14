@@ -1023,3 +1023,11 @@ Date: 2026-11-14 · the maintainer, of D-112's cross-fading pictures: "tu as mis
 - **Decision:** the site's stage plays ten seconds of a race — the start and the first bends — muted, looping, with a poster while it loads (2.4 MB, H.264, 1280×720, 30 frames a second). It is filmed by the bench itself: `--film FROM,TO[,EVERY]` saves a picture of every frame of a stretch, and since the bench steps time by a fixed amount the frames are those of a smooth film whatever the machine's speed; `ffmpeg` joins them. Where the reader asks for less motion, the poster stands in. Still no script.
 - **Why:** a game engine's first proof is the game moving.
 - **Consequences:** the film is a file in `site/video/`, made again by hand when the game's look changes much; its caption names the tier it was filmed at.
+
+## D-115 — The bench's frames are not the same from one tier's run to another's
+
+Date: 2026-11-14 · seen while comparing pictures for the site (D-112 said "the same bench frame at T3 and T4").
+
+- **Found:** on the same machine and build, frame 1500 of the T3 run and of the T4 run show the followed kart a few metres apart; a film of frames 240 to 840 made on the laptop at T3 and on the cloud's L4 at T4 shows a different kart leading at frame 400. The bench's race is therefore not identical from run to run, as [the render bench](../knowledge/oracles/render-bench.md) says it is ("the same frames on every machine").
+- **Decision:** the site says "the same bend of the same bench", not "the same frame". The cause is not yet known (when the race starts relative to the scenery's loading, or arithmetic that differs between machines): until it is found, timings compare runs of the same stretch of track, not of identical frames.
+- **Open:** find what differs and make the race identical again, with a test that hashes the karts' places at fixed frames.

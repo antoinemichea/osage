@@ -39,7 +39,7 @@ It also reports the share of frames over budget, which the mean hides.
 
 # What it does not prove
 
-That the picture is right: compare the screenshots, which are taken at the same frames in every run. That another machine does as well: a receipt names its GPU and driver. Times taken while other programs run are pessimistic.
+That the picture is right: compare the screenshots, which are taken at the same frames in every run — the report's `race` is the same on every run that raced the same frames, on any machine and at any tier (D-116). That another machine does as well: a receipt names its GPU and driver. Times taken while other programs run are pessimistic.
 
 # Used by
 

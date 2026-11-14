@@ -32,6 +32,7 @@ Take time away from the machine. The simulation advances one fixed step per draw
 7. **Screenshots** of the picture at four fixed frames.
 8. **Report:** tier, sky, commit, GPU, driver, CPU, output size and size drawn, mean, median, 95th and 99th percentiles, worst frame, the numbers of the three slowest frames (where a stall is, to replay it), share of frames over the tier's budget.
 9. Nothing in the scene uses a random number generator; particles and scenery use repeatable arithmetic.
+10. **In grid order, and proved** (D-116): the karts are stepped and knocked in the order of their places on the grid, never in the order the engine happens to keep their entities in (which changed when a tier added components to them: T4's race had drifted from T3's). The report carries `race`, a hash (FNV-1a) of every kart's place and heading at the last step: two runs with the same `race` raced the same frames.
 
 # Invariants
 

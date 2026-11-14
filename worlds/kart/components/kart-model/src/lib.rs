@@ -741,6 +741,9 @@ fn sculpted_driver() -> &'static [(usize, Mesh)] {
         body.paint_box(BAND, Vec3::new(0.0, 0.53, -0.31), Vec3::new(0.16, 0.035, 0.2), lean)
             .paint_cone(PANELS, Vec3::new(0.0, 0.66, -0.3), Vec3::new(0.0, 0.7, -0.29), 0.075, 0.07)
             .paint_box(PATCH, Vec3::new(0.0, 0.46, -0.44), Vec3::new(0.09, 0.06, 0.08), lean);
+        // Cells of 12 mm. The suit's colours meet along the cells' edges, in
+        // teeth a close picture shows; 8 mm halves them but cost the Iris Xe
+        // 2.3 ms a frame at T2 (eight skinned drivers), and was not kept (D-117).
         body.skinned(0.012, |_| [1.0; 4])
     })
 }

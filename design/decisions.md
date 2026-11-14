@@ -1031,3 +1031,19 @@ Date: 2026-11-14 · seen while comparing pictures for the site (D-112 said "the 
 - **Found:** on the same machine and build, frame 1500 of the T3 run and of the T4 run show the followed kart a few metres apart; a film of frames 240 to 840 made on the laptop at T3 and on the cloud's L4 at T4 shows a different kart leading at frame 400. The bench's race is therefore not identical from run to run, as [the render bench](../knowledge/oracles/render-bench.md) says it is ("the same frames on every machine").
 - **Decision:** the site says "the same bend of the same bench", not "the same frame". The cause is not yet known (when the race starts relative to the scenery's loading, or arithmetic that differs between machines): until it is found, timings compare runs of the same stretch of track, not of identical frames.
 - **Open:** find what differs and make the race identical again, with a test that hashes the karts' places at fixed frames.
+
+## D-116 — The bench's race is the same at every tier again, and says so
+
+Date: 2026-11-14 · closes D-115's open point.
+
+- **Found:** the bench stepped and knocked its karts in the order the engine iterated their entities. That order is the engine's own: at T4, where more is attached to each kart, it differed, and the race with it. At T2 and T3 it happened to be the grid's.
+- **Decision:** the bench orders its karts by their place on the grid before stepping them, and its report carries `race`: a hash of every kart's place and heading at the last step. Verified the same — `2a62476cae77818b` after 2400 frames — on the laptop at T2 and on the cloud's L4 at T3 and at T4.
+- **Consequences:** timings and pictures from before this entry compare T3 and T4 on the same stretch of track, not on identical frames; from here, a comparison quotes the `race` of its runs. The site's T3 and T4 pictures are taken again from runs with the same `race`.
+
+## D-117 — A finer driver was tried and not kept
+
+Date: 2026-11-14 · a close picture of a driver shows the suit's stripes with toothed edges: the sculpted body's colours meet along the cells of its mesh (12 mm).
+
+- **Tried:** cells of 8 mm (17 500 → about 38 000 vertices a driver). The bench at T2 on the Iris Xe went from 20.9 to 23.3 ms a frame (same `race`): eight skinned drivers.
+- **Decision:** not kept. From the chase camera, four metres back, the teeth are under two pixels; only the photo mode and the replays' close cameras see them.
+- **Next:** colours that meet along the painted shape's own edge rather than the cells' (vertices moved onto the boundary when the surface is meshed), which costs nothing at run time; or a finer body for the tiers that can afford it.

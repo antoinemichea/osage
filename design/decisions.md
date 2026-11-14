@@ -1064,3 +1064,12 @@ Date: 2026-11-14 · the maintainer, when asked which human model to take: "pour 
 - **Why:** CC0 alone left the game without what open libraries do well — people, animals, animation; the sculpted figures showed it.
 - **Not changed:** nothing from commercial games or proprietary SDKs (clean sources); licences that forbid commercial use or changes are not open and stay out; the engine's and the game's own code licences.
 - **Consequences:** releases carry a credits file made from the manifest once the first such file enters; the manifest gains a field for what a licence asks.
+
+## D-119 — The rays skip what is not worth them: small plants, and all but one level of detail
+
+Date: 2026-11-14 · T4 at night in the rain had gone over its budget (35.3 ms for 33.3) with the day's additions.
+
+- **Found:** every drawn mesh with the standard material was given a double for the rays (D-093) — among them each of the three levels of detail of every tree, bush and rock, all in the traced scene at once and in the same place (a level out of its range is not hidden, only not drawn), and every tuft of the grass carpet round the camera.
+- **Decision:** a world marks what traced light leaves out (`osage_render::NotTraced`); the placed models say which level of detail each mesh is (`osage_props::Level`). The kart world leaves out what is seen no farther than 100 m (grass, flowers, ferns, stones) and, of a model with levels, all but the middle one.
+- **Measured** on the cloud's L4 at 2560×1440, night and rain, the same `race`: 35.27 → 31.40 ms a frame; the 95th percentile 57.7 → 47.9 ms.
+- **Consequences:** what is left out is drawn and lit as before but casts no traced shadow and bounces no light; a near tree's traced shadow is its thinned level's.

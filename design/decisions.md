@@ -1047,3 +1047,11 @@ Date: 2026-11-14 · a close picture of a driver shows the suit's stripes with to
 - **Tried:** cells of 8 mm (17 500 → about 38 000 vertices a driver). The bench at T2 on the Iris Xe went from 20.9 to 23.3 ms a frame (same `race`): eight skinned drivers.
 - **Decision:** not kept. From the chase camera, four metres back, the teeth are under two pixels; only the photo mode and the replays' close cameras see them.
 - **Next:** colours that meet along the painted shape's own edge rather than the cells' (vertices moved onto the boundary when the surface is meshed), which costs nothing at run time; or a finer body for the tiers that can afford it.
+
+## D-118 — Colours meet along the painted shapes' edges, not the cells'
+
+Date: 2026-11-14 · D-117's "next": the sculpted surfaces' colours met in teeth one cell long (the driver's suit, the bodywork's livery).
+
+- **Decision:** when a sculpture is meshed, a vertex on an edge that joins two groups is moved to where the group changes along that edge (found by bisection; the mean of such places when several edges cross; then back onto the surface). Every sculpted surface gains it: the drivers, the bodywork, the crowd's figures, the animals.
+- **Measured:** the driver's stripes, chest band and back patch are lines at the same 12 mm cells and the same 17 500 vertices; the bodywork's cells go back from 8 mm to 12 and 10 mm (D-098 had made them finer for this). The bench at T2 on the Iris Xe: 20.9 ms before, 20.9 ms after, the same `race`.
+- **Why:** it costs nothing when the game runs, where finer cells cost 2.3 ms (D-117).

@@ -393,6 +393,42 @@ impl Sculpture {
             }
         }
 
+        // Colours meet along the painted shapes' own edges, not the cells'
+        // (D-118): where an edge of the mesh joins two groups, the place
+        // the group changes is found along it, and the nearer of its two
+        // vertices is moved there (to the mean of such places, then back
+        // onto the surface). Triangles then lie on one side or the other,
+        // and a stripe's edge is a line, not a row of teeth.
+        let group_of: Vec<usize> = positions.iter().map(|p| self.group_at(*p)).collect();
+        let mut pulled = vec![(Vec3::ZERO, 0.0f32); positions.len()];
+        for quad in &quads {
+            for e in 0..4 {
+                let (a, b) = (quad[e] as usize, quad[(e + 1) % 4] as usize);
+                if group_of[a] == group_of[b] {
+                    continue;
+                }
+                let (mut low, mut high) = (0.0f32, 1.0f32);
+                for _ in 0..7 {
+                    let middle = (low + high) / 2.0;
+                    if self.group_at(positions[a].lerp(positions[b], middle)) == group_of[a] {
+                        low = middle;
+                    } else {
+                        high = middle;
+                    }
+                }
+                let t = (low + high) / 2.0;
+                let nearer = if t < 0.5 { a } else { b };
+                pulled[nearer].0 += positions[a].lerp(positions[b], t);
+                pulled[nearer].1 += 1.0;
+            }
+        }
+        for (position, (sum, count)) in positions.iter_mut().zip(pulled) {
+            if count > 0.0 {
+                let p = sum / count;
+                *position = p - self.normal(p, cell * 0.5) * self.distance(p);
+            }
+        }
+
         // Normals from the field; each triangle to its group's shape.
         let normals: Vec<Vec3> = positions.iter().map(|p| self.normal(*p, cell * 0.5)).collect();
         let mut groups: std::collections::BTreeMap<usize, Gathered> = std::collections::BTreeMap::new();

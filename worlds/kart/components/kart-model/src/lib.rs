@@ -543,8 +543,7 @@ fn moulded() -> &'static [(usize, Shape)] {
             let swept = Quat::from_rotation_y(side * 0.5);
             nose.paint_box(STRIPE, Vec3::new(side * 0.12, 0.16, 0.72), Vec3::new(0.035, 0.1, 0.16), swept);
         }
-        // Fine cells: the livery's colours meet along the cells' edges.
-        parts.extend(nose.shapes(0.008));
+        parts.extend(nose.shapes(0.012));
         for side in [-1.0f32, 1.0] {
             let mut pod = Sculpture::new(0.018);
             pod.rounded(PAINT, Vec3::new(side * 0.5, 0.125, 0.0), Vec3::new(0.12, 0.07, 0.31), 0.02, flat)
@@ -559,7 +558,7 @@ fn moulded() -> &'static [(usize, Shape)] {
                     Vec3::new(0.06, 0.022, 0.2),
                     Quat::from_rotation_x(0.32),
                 );
-            parts.extend(pod.shapes(0.008));
+            parts.extend(pod.shapes(0.01));
         }
         let mut bumper = Sculpture::new(0.05);
         bumper.rounded(BLACK, Vec3::new(0.0, 0.17, -0.86), Vec3::new(0.4, 0.075, 0.1), 0.04, flat);
@@ -741,9 +740,9 @@ fn sculpted_driver() -> &'static [(usize, Mesh)] {
         body.paint_box(BAND, Vec3::new(0.0, 0.53, -0.31), Vec3::new(0.16, 0.035, 0.2), lean)
             .paint_cone(PANELS, Vec3::new(0.0, 0.66, -0.3), Vec3::new(0.0, 0.7, -0.29), 0.075, 0.07)
             .paint_box(PATCH, Vec3::new(0.0, 0.46, -0.44), Vec3::new(0.09, 0.06, 0.08), lean);
-        // Cells of 12 mm. The suit's colours meet along the cells' edges, in
-        // teeth a close picture shows; 8 mm halves them but cost the Iris Xe
-        // 2.3 ms a frame at T2 (eight skinned drivers), and was not kept (D-117).
+        // Cells of 12 mm: finer ones cost the Iris Xe 2.3 ms a frame at T2
+        // (D-117); the suit's colours meet cleanly since the mesh's vertices
+        // are moved onto the painted shapes' edges (D-118).
         body.skinned(0.012, |_| [1.0; 4])
     })
 }

@@ -108,12 +108,12 @@
           <a class="button quiet small" href="https://github.com/smichea/osage/releases">All releases</a>
         </div>
         <div class="news">
-          <a class="news-card reveal" href="https://github.com/smichea/osage/releases/tag/kart-v0.13.4">
-            <img src="img/tile-marshals.webp" alt="" loading="lazy">
+          <a class="news-card reveal" href="https://github.com/smichea/osage/releases/tag/kart-v0.13.5">
+            <img src="img/tile-karts.webp" alt="" loading="lazy">
             <div>
               <p class="date">November 14, 2026</p>
-              <h3>Kart 0.13.4 is out</h3>
-              <p>Clouds' shadows drift over the land on the wind, and marshals wave cloth flags as the karts come by.</p>
+              <h3>Kart 0.13.5 is out</h3>
+              <p>Drivers flinch when knocked, and clouds' shadows drift over the land on the wind.</p>
               <span class="tag">Release</span>
             </div>
           </a>
@@ -179,9 +179,9 @@
             <img src="img/tile-wildlife.webp" alt="" loading="lazy">
             <span>Wildlife that minds the karts <svg aria-hidden="true"><use href="#arrow"/></svg></span>
           </a>
-          <a class="tile reveal" href="https://github.com/smichea/osage/blob/main/knowledge/modules/kart-native.md">
-            <img src="img/tile-marshals.webp" alt="" loading="lazy">
-            <span>Marshals at their posts <svg aria-hidden="true"><use href="#arrow"/></svg></span>
+          <a class="tile reveal" href="https://github.com/smichea/osage/blob/main/knowledge/techniques/ground-variation.md">
+            <img src="img/tile-land.webp" alt="" loading="lazy">
+            <span>Land that never repeats <svg aria-hidden="true"><use href="#arrow"/></svg></span>
           </a>
           <a class="tile reveal" href="https://github.com/smichea/osage/blob/main/knowledge/modules/kart-items.md">
             <img src="img/hero-start.webp" alt="" loading="lazy">
@@ -228,11 +228,11 @@
       <div class="wrap compare">
         <figure class="reveal">
           <img src="img/day-t3.webp" alt="A frame of the race drawn without ray tracing" loading="lazy">
-          <figcaption><b>T3 · raster</b>A frame of the bench on a GPU without ray tracing: cascaded shadows, ambient occlusion, a photographed sky as light. 14.4 ms a frame.</figcaption>
+          <figcaption><b>T3 · raster</b>A frame of the bench on a GPU without ray tracing: cascaded shadows, ambient occlusion, a photographed sky as light. 15.6 ms a frame.</figcaption>
         </figure>
         <figure class="reveal">
-          <img src="img/day-t4.webp" alt="The same bend with ray-traced light" loading="lazy">
-          <figcaption><b>T4 · ray-traced</b>The same bend of the same bench, its light traced: soft shadows, the sky's light in the shade, colour bounced from the grass and the kerbs. 29.9 ms a frame.</figcaption>
+          <img src="img/day-t4.webp" alt="The same frame with ray-traced light" loading="lazy">
+          <figcaption><b>T4 · ray-traced</b>The same frame of the same race, its light traced: soft shadows, the sky's light in the shade, colour bounced from the grass and the kerbs. 31.7 ms a frame.</figcaption>
         </figure>
       </div>
     </section>
@@ -260,13 +260,13 @@
             <span class="pill">T3</span>
             <h3>Discrete GPUs</h3>
             <p>A photographed sky as light, modelled trees and grass, soft shadows, TAA, motion blur.</p>
-            <p class="budget"><b>14.4 ms</b> at 1440p on an NVIDIA L4</p>
+            <p class="budget"><b>15.6 ms</b> at 1440p on an NVIDIA L4</p>
           </article>
           <article class="step accent reveal">
             <span class="pill">T4</span>
             <h3>Ray tracing</h3>
             <p>Direct and indirect light traced by the GPU (Bevy Solari, ReSTIR) and osage's own denoiser.</p>
-            <p class="budget"><b>29.9 ms</b> by day, <b>32.8 ms</b> at night in the rain</p>
+            <p class="budget"><b>31.7 ms</b> by day at 1440p on an NVIDIA L4</p>
           </article>
         </div>
       </div>
